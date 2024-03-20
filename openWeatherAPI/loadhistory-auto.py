@@ -5,16 +5,33 @@ import json
 from datetime import datetime, timedelta
 import time
 
+def save_data(data, city, province, end_date):
+    if not data.empty:
+        data.insert(0, 'province', province)
+        data.insert(0, 'city', city)
+        
+        filename = f"weather-data-{city}-{end_date.strftime('%Y%m%d')}.csv"
+        data.to_csv(filename, index=False)
+        print(f"Data saved to {filename}")
+
 # convert date to unix timestamp
 def to_unix_time(date):
     return int(datetime.timestamp(date))
 
 # make an api call for a specific date
 def fetch_weather_data(lat, lon, date, api_key):
-    unix_time = to_unix_time(date)
-    url = f"https://api.openweathermap.org/data/3.0/onecall/timemachine?lat={lat}&lon={lon}&dt={unix_time}&appid={api_key}&units=metric"
-    response = requests.get(url)
-    return response.json()
+    try:
+        unix_time = to_unix_time(date)
+        url = f"https://api.openweathermap.org/data/3.0/onecall/timemachine?lat={lat}&lon={lon}&dt={unix_time}&appid={api_key}&units=metric"
+        response = requests.get(url)
+        return response.json()
+    except:
+        # Handle SSL Error by saving the data fetched so far
+        if not period_data.empty:
+            save_data(period_data, city, province, end_date)
+        print("SSL Error occurred. Data fetched so far has been saved.")
+        return None
+
 
 # convert unix timestamp to human-readable format
 def timestamp_to_readable(unix_time):
@@ -37,15 +54,15 @@ def transform_data(data_dict, new_columns):
     return pd.Series(new_row)
 
 # TODO: Replace with your API key
-api_key = ''
+api_key = '50962ff9bc1b62f99b62f190b269d911'
 
 # TODO: latitude and longitude
-latitude = 62.4539
-longitude = -114.3525
+latitude = 60.7212 
+longitude =  -135.0568
 
 # TODO: city and province
-city = "Yellowknife"
-province = "Northwest Territories"
+city = "Whitehorse"
+province = "Yukon"
 
 # define the new column names for extraction (without 'uvi')
 new_columns = [

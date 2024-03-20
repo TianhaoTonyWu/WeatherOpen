@@ -4,6 +4,17 @@ import numpy as np
 import json
 from datetime import datetime, timedelta
 import time
+import ssl
+
+def save_data(data, city, province, end_date):
+    if not data.empty:
+        data.insert(0, 'province', province)
+        data.insert(0, 'city', city)
+        
+        filename = f"weather-data-{city}-{end_date.strftime('%Y%m%d')}.csv"
+        data.to_csv(filename, index=False)
+        print(f"Data saved to {filename}")
+
 
 # convert date to unix timestamp
 def to_unix_time(date):
@@ -11,10 +22,17 @@ def to_unix_time(date):
 
 # make an api call for a specific date
 def fetch_weather_data(lat, lon, date, api_key):
-    unix_time = to_unix_time(date)
-    url = f"https://api.openweathermap.org/data/3.0/onecall/timemachine?lat={lat}&lon={lon}&dt={unix_time}&appid={api_key}&units=metric"
-    response = requests.get(url)
-    return response.json()
+    try:
+        unix_time = to_unix_time(date)
+        url = f"https://api.openweathermap.org/data/3.0/onecall/timemachine?lat={lat}&lon={lon}&dt={unix_time}&appid={api_key}&units=metric"
+        response = requests.get(url)
+        return response.json()
+    except requests.exceptions.SSLError:
+        # Handle SSL Error by saving the data fetched so far
+        if not period_data.empty:
+            save_data(period_data, city, province, end_date)
+        print("SSL Error occurred. Data fetched so far has been saved.")
+        return None
 
 # convert unix timestamp to human-readable format
 def timestamp_to_readable(unix_time):
@@ -39,15 +57,16 @@ def transform_data(data_dict, new_columns):
 ######################################################
 
 # Replace with your API key
-api_key = ''
+api_key = '50962ff9bc1b62f99b62f190b269d911'
 
-# Latitude and longitude
-latitude = 62.4539 
-longitude = -114.3525 
+# TODO: latitude and longitude
+latitude = 60.7212 
+longitude =  -135.0568
 
-# City and province
-city = "Yellowknife"
-province = "Northwest Territories"
+# TODO: city and province
+city = "Whitehorse"
+province = "Yukon"
+
 
 # New column names for extraction (without 'uvi')
 new_columns = [
@@ -57,8 +76,8 @@ new_columns = [
 ]
 
 # User-specified start and end dates
-start_date = datetime.strptime("2024-02-10", '%Y-%m-%d')  
-end_date = datetime.strptime("2024-02-20", '%Y-%m-%d')  
+start_date = datetime.strptime("2021-07-06", '%Y-%m-%d')  
+end_date = datetime.strptime("2023-02-25", '%Y-%m-%d')  
 
 
 ###################################################################
@@ -79,7 +98,8 @@ if not period_data.empty:
     period_data.insert(0, 'city', city)
     
     # Save the period data to a CSV file
-    filename = f"weather-data-{city}-{end_date.strftime('%Y%m%d')}.csv"
+    filename = f"weather-data-fix-{city}-{end_date.strftime('%Y%m%d')}.csv"
     period_data.to_csv(filename, index=False)
 else:
     print(f"No data fetched for period {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}")
+ 
