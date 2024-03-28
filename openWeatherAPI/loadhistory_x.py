@@ -76,8 +76,8 @@ new_columns = [
 ]
 
 # User-specified start and end dates
-start_date = datetime.strptime("2021-07-06", '%Y-%m-%d')  
-end_date = datetime.strptime("2023-02-25", '%Y-%m-%d')  
+start_date = datetime.strptime("2018-11-08", '%Y-%m-%d')  
+end_date = datetime.strptime("2021-06-25", '%Y-%m-%d')  
 
 
 ###################################################################
