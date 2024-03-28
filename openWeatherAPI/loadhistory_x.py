@@ -57,7 +57,7 @@ def transform_data(data_dict, new_columns):
 ######################################################
 
 # Replace with your API key
-api_key = '50962ff9bc1b62f99b62f190b269d911'
+api_key = ''
 
 # TODO: latitude and longitude
 latitude = 60.7212 
